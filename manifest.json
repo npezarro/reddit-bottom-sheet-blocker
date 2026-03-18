@@ -1,18 +1,17 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "Reddit Bottom Sheet Blocker Enhanced",
-    "version": "1.2",
+    "version": "2.0",
     "description": "Blocks the Reddit mobile web bottom sheet prompt and allows dynamic element removal.",
     "permissions": [
         "activeTab",
-        "<all_urls>",
         "storage"
     ],
+    "host_permissions": [
+        "*://*.reddit.com/*"
+    ],
     "background": {
-        "scripts": [
-            "background.js"
-        ],
-        "persistent": false
+        "service_worker": "background.js"
     },
     "content_scripts": [
         {
@@ -25,7 +24,7 @@
             "run_at": "document_idle"
         }
     ],
-    "browser_action": {
+    "action": {
         "default_popup": "popup.html",
         "default_icon": {
             "48": "icon.png"
