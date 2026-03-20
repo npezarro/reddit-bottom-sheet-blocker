@@ -36,7 +36,7 @@
     "options_page": "options.html",
     "browser_specific_settings": {
         "gecko": {
-            "id": "your-extension-id@example.com",
+            "id": "reddit-bottom-sheet-blocker@pezant.ca",
             "strict_min_version": "42.0"
         }
     }
