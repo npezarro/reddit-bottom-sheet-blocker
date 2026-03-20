@@ -8,18 +8,37 @@ function removeElementBySelector(selector) {
   });
 }
 
-// Automatically attempt to remove the xpromo-bottom-sheet and shreddit-experience-tree
+// Cache custom selectors in memory to avoid IPC on every DOM mutation
+let cachedSelectors = [];
+
+// Load custom selectors from storage once at startup
+chrome.storage.sync.get({selectors: []}, function(data) {
+  cachedSelectors = data.selectors;
+  // Initial run to remove all targets
+  removeAllTargets();
+});
+
+// Update cached selectors when storage changes
+chrome.storage.onChanged.addListener(function(changes, area) {
+  if (area === 'sync' && changes.selectors) {
+    cachedSelectors = changes.selectors.newValue || [];
+  }
+});
+
+// Remove all targeted elements (built-in + custom selectors)
+function removeAllTargets() {
+  removeElementBySelector('#bottom-sheet');
+  removeElementBySelector('shreddit-experience-tree');
+  cachedSelectors.forEach(selector => removeElementBySelector(selector));
+}
+
+// Automatically attempt to remove on load
 removeElementBySelector('#bottom-sheet');
 removeElementBySelector('shreddit-experience-tree');
 
-// MutationObserver to dynamically remove the xpromo-bottom-sheet and shreddit-experience-tree if they appear later
-const observer = new MutationObserver((mutations, obs) => {
-  removeElementBySelector('#bottom-sheet');
-  removeElementBySelector('shreddit-experience-tree');
-  // Remove additional selectors if specified
-  chrome.storage.sync.get({selectors: []}, function(data) {
-    data.selectors.forEach(selector => removeElementBySelector(selector));
-  });
+// MutationObserver to dynamically remove elements as they appear
+const observer = new MutationObserver(() => {
+  removeAllTargets();
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
@@ -33,8 +52,3 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
-
-// Initial run to remove additional selectors if specified
-chrome.storage.sync.get({selectors: []}, function(data) {
-  data.selectors.forEach(selector => removeElementBySelector(selector));
-});
